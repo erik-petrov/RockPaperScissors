@@ -14,16 +14,18 @@ namespace RPC
     public partial class Form1 : Form
     {
         string plr, plr2;
-        int plrW, plr2W;
-        Label lbl, final, plrL, plr2L, score;
+        Label lbl, final, scores, picSlave;
         Random rnd;
         RadioButton rad, rad2, rad3, rad4, rad5, rad6;
-        Button btn;
+        Button btn, scoreB;
         GroupBox plrP, plr2P;
+        CheckBox pvppvpe;
+        TextBox plrT, plr2T, feed;
+        PictureBox pic, pic2;
         public Form1()
         {
-            this.Height = 500;
-            this.Width = 500;
+            this.Height = 600;
+            this.Width = 800;
             this.Text = "Камень, Ножницы, Бумага";
             this.BackColor = Color.White;
             //Greeting label
@@ -39,30 +41,13 @@ namespace RPC
             final.Location = new Point(250, 400);
             final.Hide();
             this.Controls.Add(final);
-            //scoreboard
-            score = new Label();
-            score.Width = 100;
-            score.Location = new Point(225, 75);
-            using (FileStream scoreboard = File.OpenRead(@"../../score.txt"))
-            {
-                byte[] b = new byte[256];
-                UTF8Encoding temp = new UTF8Encoding(true);
-                while (scoreboard.Read(b, 0, b.Length) > 0)
-                {
-                    score.Text += temp.GetString(b);
-                }
-            }
-            string[] scores = score.Text.Split(':');
-            plrW = Convert.ToInt32(Convert.ToString(scores[0]));
-            plr2W = Convert.ToInt32(scores[1]);
-            this.Controls.Add(score);
             //plrP label
-            plrL = new Label();
-            plrL.Width = 100;
-            plrL.Height = 20;
-            plrL.Text = "Игрок 1";
-            plrL.Location = new Point(10, 85);
-            this.Controls.Add(plrL);
+            plrT = new TextBox();
+            plrT.Width = 100;
+            plrT.Height = 20;
+            plrT.Text = "Игрок 1";
+            plrT.Location = new Point(10, 85);
+            this.Controls.Add(plrT);
             //Radio buttons
             plrP = new GroupBox();
             plrP.Location = new Point(0, 100);
@@ -91,12 +76,12 @@ namespace RPC
             plrP.Controls.Add(rad3);
             this.Controls.Add(plrP);
             //plrP label
-            plr2L = new Label();
-            plr2L.Width = 100;
-            plr2L.Height = 20;
-            plr2L.Text = "Игрок 2";
-            plr2L.Location = new Point(10, 185);
-            this.Controls.Add(plr2L);
+            plr2T = new TextBox();
+            plr2T.Width = 100;
+            plr2T.Height = 20;
+            plr2T.Text = "Игрок 2";
+            plr2T.Location = new Point(10, 185);
+            this.Controls.Add(plr2T);
             //Radio buttons
             plr2P = new GroupBox();
             plr2P.Location = new Point(0, 200);
@@ -134,47 +119,162 @@ namespace RPC
             };
             btn.Click += cycle;
             this.Controls.Add(btn);
-            this.FormClosing += Form1_FormClosing;
+            //pvepvp check
+            pvppvpe = new CheckBox();
+            pvppvpe.Location = new Point(350, 300);
+            pvppvpe.Text = "PVP?";
+            pvppvpe.Checked = true;
+            pvppvpe.CheckedChanged += Pvppvpe_CheckedChanged;
+            this.Controls.Add(pvppvpe);
+            //score feed
+            feed = new TextBox();
+            feed.ReadOnly = true;
+            feed.Location = new Point(550, 25);
+            feed.Width = 200;
+            feed.Height = 300;
+            feed.Multiline = true;
+            this.Controls.Add(feed);
+            //last10 label
+            scores = new Label();
+            scores.Location = new Point(550, 330);
+            scores.Text = "Показать последние 10 результатов";
+            scores.Width = 200;
+            this.Controls.Add(scores);
+            //last 10 scores
+            scoreB = new Button();
+            scoreB.Location = new Point(600, 355);
+            scoreB.Text = "Показать";
+            this.Controls.Add(scoreB);
+            scoreB.Click += ScoreB_Click;
+            //pic pl1
+            pic = new PictureBox();
+            pic.Location = new Point(150, 450);
+            pic.Width = 100;
+            pic.Height = 100;
+            pic.SizeMode = PictureBoxSizeMode.StretchImage;
+            this.Controls.Add(pic);
+            //pic pl2
+            pic2 = new PictureBox();
+            pic2.Location = new Point(350, 450);
+            pic2.Width = 100;
+            pic2.Height = 100;
+            pic2.SizeMode = PictureBoxSizeMode.StretchImage;
+            this.Controls.Add(pic2);
+            //pic slave
+            picSlave = new Label();
+            picSlave.Location = new Point(250, 450);
+            picSlave.Font = new Font("Arial", 76);
+            picSlave.Width = 100;
+            picSlave.Height = 100;
+            this.Controls.Add(picSlave);
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void ScoreB_Click(object sender, EventArgs e)
         {
-            System.IO.File.WriteAllText(@"../../score.txt", score.Text);
+            try
+            {
+                feed.Text = "";
+                string[] lines = File.ReadAllLines(@"../../score.txt");
+                for (int i = lines.Length - 11; i < lines.Length; i++)
+                {
+                    feed.Text += lines[i] + Environment.NewLine;
+                }
+            }
+            catch
+            {
+                Console.WriteLine("error");
+            }
+        }
+
+        private void Pvppvpe_CheckedChanged(object sender, EventArgs e)
+        {
+            if (pvppvpe.Checked)
+            {
+                plr2P.Show();
+                plr2T.Show();
+            }
+            else
+            {
+                plr2T.Hide();
+                plr2P.Hide();
+            }
         }
 
         private void cycle(object sender, EventArgs e)
         {
+            string p2 = plr2T.Text;
+            string p = plrT.Text;
             switch (Play())
             {
                 case 0:
                     final.Text = "Ничья!";
                     this.BackColor = Color.White;
+                    picSlave.Text = "=";
                     break;
                 case 1:
-                    final.Text = "Вы победили!";
+                    final.Text = $"{p} победил!";
                     this.BackColor = Color.Green;
-                    plrW++;
+                    picSlave.Text = ">";
                     break;
                 case 2:
-                    final.Text = "Вы проиграли!";
+                    final.Text = $"{p2} победил!";
                     this.BackColor = Color.Red;
-                    plr2W++;
+                    picSlave.Text = "<";
                     break;
                 default:
-                    final.Text = "error";
+                    final.Text = "Выберите чем будете играть.";
                     break;
             }
-            score.Text = $"{plrW}:{plr2W}";
+            File.AppendAllText(@"../../score.txt", final.Text + Environment.NewLine);
             final.Show();
         }
         //0 = draw, 1 = win, 2 = lose
         private int Play()
         {
             var plrRad = plrP.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+            if (plrRad == null) return 5;
             plr = plrRad.Name.ToString();
-            var plr2Rad = plr2P.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-            plr2 = plr2Rad.Name.ToString();
+            if (pvppvpe.Checked)
+            {
+                var plr2Rad = plr2P.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+                if (plr2Rad == null) return 5;
+                plr2 = plr2Rad.Name.ToString();
+            }
+            else
+            {
+                plr2 = randomPiece();
+                plr2T.Text = "Игрок 2";
+            }
+            setImg(plr, plr2);
             return winCheck(plr, plr2);
+        }
+        private void setImg(string plr, string plr2)
+        {
+            Random rnd = new Random();
+            switch (plr)
+            {
+                case "scissors":
+                    pic2.Image = Image.FromFile($"../../pics/scissors{rnd.Next(1, 3)}.jpg");
+                    break;
+                case "paper":
+                    pic.Image = Image.FromFile("../../pics/paper.jpg");
+                    break;
+                case "rock":
+                    pic.Image = Image.FromFile($"../../pics/rock{rnd.Next(1, 4)}.jpg");
+                    break;
+            }
+            switch (plr2)
+            {
+                case "scissors":
+                    pic2.Image = Image.FromFile($"../../pics/scissors{rnd.Next(1, 3)}.jpg");
+                    break;
+                case "paper":
+                    pic2.Image = Image.FromFile("../../pics/paper.jpg");
+                    break;
+                case "rock":
+                    pic2.Image = Image.FromFile($"../../pics/rock{rnd.Next(1, 4)}.jpg");
+                    break;
+            }
         }
         private string randomPiece()
         {

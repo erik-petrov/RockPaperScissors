@@ -80,6 +80,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="pics\paper.jpg" />
+    <Content Include="pics\rock2.jpg" />
+    <Content Include="pics\rock3.jpg" />
+    <Content Include="pics\rock1.jpg" />
+    <Content Include="pics\scissors1.jpg" />
+    <Content Include="pics\scissors2.jpg" />
     <Content Include="score.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
