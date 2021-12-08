@@ -13,15 +13,34 @@ namespace RPC
 {
     public partial class Form1 : Form
     {
-        string plr, plr2;
-        Label lbl, final, scores, picSlave;
+        Label lbl, final, scores, picSlave, choicePlr1, choicePlr2;
         Random rnd;
-        RadioButton rad, rad2, rad3, rad4, rad5, rad6;
-        Button btn, scoreB, about, lockpl1, lockpl2;
-        GroupBox plrP, plr2P;
+        Button btn, scoreB, about, lockpl1, lockpl2, showpl1, showpl2;
         CheckBox pvppvpe;
         TextBox plrT, plr2T, feed;
         PictureBox pic, pic2;
+        private string _plr1Hand = string.Empty;
+        private string _plr2Hand = string.Empty;
+
+        public string plr1Hand
+        {
+            get {return _plr1Hand; }
+            set
+            {
+                if (_plr1Hand != value)
+                    _plr1Hand = value;
+            }
+        }
+
+        public string plr2Hand
+        {
+            get { return _plr2Hand; }
+            set
+            {
+                if (_plr2Hand != value)
+                    _plr2Hand = value;
+            }
+        }
         public Form1()
         {
             this.Height = 600;
@@ -48,38 +67,11 @@ namespace RPC
             plrT.Text = "Mängija 1";
             plrT.Location = new Point(10, 85);
             this.Controls.Add(plrT);
-            //Radio buttons
-            plrP = new GroupBox();
-            plrP.Location = new Point(0, 100);
-            plrP.Width = 500;
-            plrP.Height = 50;
-            rad = new RadioButton
-            {
-                Location = new Point(50, 15),
-                Text = "Kivi",
-                Name = "rock"
-            };
-            rad2 = new RadioButton
-            {
-                Location = new Point(200, 15),
-                Text = "Käärid",
-                Name = "scissors"
-            };
-            rad3 = new RadioButton
-            {
-                Location = new Point(350, 15),
-                Text = "Paber",
-                Name = "paper"
-            };
-            plrP.Controls.Add(rad);
-            plrP.Controls.Add(rad2);
-            plrP.Controls.Add(rad3);
-            this.Controls.Add(plrP);
             //lock pl2
             lockpl1 = new Button();
-            lockpl1.Location = new Point(505, 115);
+            lockpl1.Location = new Point(50, 115);
             lockpl1.Width = 40;
-            lockpl1.Text = "Lukk";
+            lockpl1.Text = "Vali";
 			lockpl1.Click += Lockpl1_Click;
             this.Controls.Add(lockpl1);
             //plrP label
@@ -89,38 +81,11 @@ namespace RPC
             plr2T.Text = "Mängija 2";
             plr2T.Location = new Point(10, 185);
             this.Controls.Add(plr2T);
-            //Radio buttons
-            plr2P = new GroupBox();
-            plr2P.Location = new Point(0, 200);
-            plr2P.Width = 500;
-            plr2P.Height = 50;
-            rad4 = new RadioButton
-            {
-                Location = new Point(50, 15),
-                Text = "Kivi",
-                Name = "rock"
-            };
-            rad5 = new RadioButton
-            {
-                Location = new Point(200, 15),
-                Text = "Käärid",
-                Name = "scissors"
-            };
-            rad6 = new RadioButton
-            {
-                Location = new Point(350, 15),
-                Text = "Paber",
-                Name = "paper"
-            };
-            plr2P.Controls.Add(rad4);
-            plr2P.Controls.Add(rad5);
-            plr2P.Controls.Add(rad6);
-            this.Controls.Add(plr2P);
             //lock pl2
             lockpl2 = new Button();
-            lockpl2.Location = new Point(505, 215);
+            lockpl2.Location = new Point(50, 215);
             lockpl2.Width = 40;
-            lockpl2.Text = "Lukk";
+            lockpl2.Text = "Vali";
 			lockpl2.Click += Lockpl2_Click;
             this.Controls.Add(lockpl2);
             //play button
@@ -187,22 +152,68 @@ namespace RPC
             about.Text = "About";
 			about.Click += About_Click;
             this.Controls.Add(about);
+            //label plr1
+            choicePlr1 = new Label();
+            choicePlr1.Location = new Point(150, 115);
+            choicePlr1.Width = 150;
+            choicePlr1.TextAlign = ContentAlignment.MiddleCenter;
+            choicePlr1.BackColor = Color.Black;
+            choicePlr1.Font = new Font("Arial", 16);
+            choicePlr1.Hide();
+            this.Controls.Add(choicePlr1);
+            //lbl1 button to show
+            showpl1 = new Button();
+            showpl1.Location = new Point(330, 115);
+            showpl1.Text = "Näidata";
+            showpl1.Hide();
+            showpl1.Click += delegate { choicePlr1.BackColor = Color.White; };
+            this.Controls.Add(showpl1);
+            //label plr2
+            choicePlr2 = new Label();
+            choicePlr2.Location = new Point(150, 215);
+            choicePlr2.Width = 150;
+            choicePlr2.TextAlign = ContentAlignment.MiddleCenter;
+            choicePlr2.BackColor = Color.Black;
+            choicePlr2.Font = new Font("Arial", 16);
+            choicePlr2.Hide();
+            this.Controls.Add(choicePlr2);
+            //lbl2 button to show
+            showpl2 = new Button();
+            showpl2.Location = new Point(330, 215);
+            showpl2.Text = "Näidata";
+            showpl2.Hide();
+            showpl2.Click += delegate { choicePlr2.BackColor = Color.White; };
+            this.Controls.Add(showpl2);
         }
 
 		private void Lockpl1_Click(object sender, EventArgs e)
 		{
-            var plrRad = plrP.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-            if (plrRad == null) return;
-            plrP.Hide();
+            playerPick pick = new playerPick(this, plr2T.Text, true);
+            pick.Show();
         }
 
 		private void Lockpl2_Click(object sender, EventArgs e)
 		{
-            var plr2Rad = plr2P.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-            if (plr2Rad == null) return;
-            plr2P.Hide();
+            playerPick pick = new playerPick(this, plr2T.Text, false);
+            pick.Show();
         }
-
+        public void SetHiddenLabel(bool plr1)
+        {
+            if (plr1)
+            {
+                choicePlr1.Show();
+                showpl1.Show();
+                choicePlr1.BackColor = Color.Black;
+                choicePlr1.Text = _plr1Hand;
+            }
+            else
+            {
+                choicePlr2.Show();
+                showpl2.Show();
+                choicePlr2.BackColor = Color.Black;
+                choicePlr2.Text = _plr2Hand;
+            }
+        }
 		private void About_Click(object sender, EventArgs e)
 		{
             Form2 aboutF = new Form2();
@@ -230,13 +241,13 @@ namespace RPC
         {
             if (pvppvpe.Checked)
             {
-                plr2P.Show();
+                lockpl2.Show();
                 plr2T.Show();
             }
             else
             {
                 plr2T.Hide();
-                plr2P.Hide();
+                lockpl2.Hide();
             }
         }
 
@@ -254,41 +265,43 @@ namespace RPC
                 case 1:
                     final.Text = $"{p} võitis!";
                     this.BackColor = Color.Green;
+                    choicePlr1.BackColor = Color.Green;
+                    choicePlr2.BackColor = Color.Green;
                     picSlave.Text = ">";
                     break;
                 case 2:
                     final.Text = $"{p2} võitis!";
                     this.BackColor = Color.Red;
+                    choicePlr1.BackColor = Color.Red;
+                    choicePlr2.BackColor = Color.Red;
                     picSlave.Text = "<";
                     break;
                 default:
                     final.Text = "Valige, mida mängite.";
                     break;
             }
-            plrP.Show();
-            if (!pvppvpe.Checked) plr2P.Show();
+            lockpl1.Show();
+            if (pvppvpe.Checked) lockpl2.Show();
+            _plr1Hand = String.Empty;
+            _plr2Hand = String.Empty;
             File.AppendAllText(@"../../score.txt", final.Text + Environment.NewLine);
             final.Show();
         }
         //0 = draw, 1 = win, 2 = lose
         private int Play()
         {
-            var plrRad = plrP.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-            if (plrRad == null) return 5;
-            plr = plrRad.Name.ToString();
+            if (_plr1Hand == string.Empty) return 5;
             if (pvppvpe.Checked)
             {
-                var plr2Rad = plr2P.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-                if (plr2Rad == null) return 5;
-                plr2 = plr2Rad.Name.ToString();
+                if (_plr2Hand == string.Empty) return 5;
             }
             else
             {
-                plr2 = randomPiece();
-                plr2T.Text = "Игрок 2";
+                _plr2Hand = randomPiece();
+                plr2T.Text = "Mängija 2";
             }
-            setImg(plr, plr2);
-            return winCheck(plr, plr2);
+            setImg(_plr1Hand, _plr2Hand);
+            return winCheck(_plr1Hand, _plr2Hand);
         }
         private void setImg(string plr, string plr2)
         {
