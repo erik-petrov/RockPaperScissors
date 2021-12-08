@@ -17,7 +17,7 @@ namespace RPC
         Label lbl, final, scores, picSlave;
         Random rnd;
         RadioButton rad, rad2, rad3, rad4, rad5, rad6;
-        Button btn, scoreB;
+        Button btn, scoreB, about, lockpl1, lockpl2;
         GroupBox plrP, plr2P;
         CheckBox pvppvpe;
         TextBox plrT, plr2T, feed;
@@ -26,13 +26,13 @@ namespace RPC
         {
             this.Height = 600;
             this.Width = 800;
-            this.Text = "Камень, Ножницы, Бумага";
+            this.Text = "Kivi, Käärid, Paber";
             this.BackColor = Color.White;
             //Greeting label
             lbl = new Label();
             lbl.Width = 300;
             lbl.Height = 50;
-            lbl.Text = "Добро пожаловать в Камень, Ножницы, Бумага!\nВыберите руку и нажмите кнопку 'Играть'!";
+            lbl.Text = "Tere tulemast rakendusse Kivi, Käärid, Paber!\nValige oma käsi ja vajutage nuppu Esita!";
             lbl.Location = new Point(110, 20);
             this.Controls.Add(lbl);
             //Final label
@@ -45,7 +45,7 @@ namespace RPC
             plrT = new TextBox();
             plrT.Width = 100;
             plrT.Height = 20;
-            plrT.Text = "Игрок 1";
+            plrT.Text = "Mängija 1";
             plrT.Location = new Point(10, 85);
             this.Controls.Add(plrT);
             //Radio buttons
@@ -56,30 +56,37 @@ namespace RPC
             rad = new RadioButton
             {
                 Location = new Point(50, 15),
-                Text = "Камень",
+                Text = "Kivi",
                 Name = "rock"
             };
             rad2 = new RadioButton
             {
                 Location = new Point(200, 15),
-                Text = "Ножницы",
+                Text = "Käärid",
                 Name = "scissors"
             };
             rad3 = new RadioButton
             {
                 Location = new Point(350, 15),
-                Text = "Бумага",
+                Text = "Paber",
                 Name = "paper"
             };
             plrP.Controls.Add(rad);
             plrP.Controls.Add(rad2);
             plrP.Controls.Add(rad3);
             this.Controls.Add(plrP);
+            //lock pl2
+            lockpl1 = new Button();
+            lockpl1.Location = new Point(505, 115);
+            lockpl1.Width = 40;
+            lockpl1.Text = "Lukk";
+			lockpl1.Click += Lockpl1_Click;
+            this.Controls.Add(lockpl1);
             //plrP label
             plr2T = new TextBox();
             plr2T.Width = 100;
             plr2T.Height = 20;
-            plr2T.Text = "Игрок 2";
+            plr2T.Text = "Mängija 2";
             plr2T.Location = new Point(10, 185);
             this.Controls.Add(plr2T);
             //Radio buttons
@@ -90,29 +97,36 @@ namespace RPC
             rad4 = new RadioButton
             {
                 Location = new Point(50, 15),
-                Text = "Камень",
+                Text = "Kivi",
                 Name = "rock"
             };
             rad5 = new RadioButton
             {
                 Location = new Point(200, 15),
-                Text = "Ножницы",
+                Text = "Käärid",
                 Name = "scissors"
             };
             rad6 = new RadioButton
             {
                 Location = new Point(350, 15),
-                Text = "Бумага",
+                Text = "Paber",
                 Name = "paper"
             };
             plr2P.Controls.Add(rad4);
             plr2P.Controls.Add(rad5);
             plr2P.Controls.Add(rad6);
             this.Controls.Add(plr2P);
+            //lock pl2
+            lockpl2 = new Button();
+            lockpl2.Location = new Point(505, 215);
+            lockpl2.Width = 40;
+            lockpl2.Text = "Lukk";
+			lockpl2.Click += Lockpl2_Click;
+            this.Controls.Add(lockpl2);
             //play button
             btn = new Button
             {
-                Text = "Играть",
+                Text = "Mängi",
                 Location = new Point(200, 300),
                 Height = 30,
                 Width = 100
@@ -137,13 +151,13 @@ namespace RPC
             //last10 label
             scores = new Label();
             scores.Location = new Point(550, 330);
-            scores.Text = "Показать последние 10 результатов";
+            scores.Text = "Kuva viimased 10 tulemust";
             scores.Width = 200;
             this.Controls.Add(scores);
             //last 10 scores
             scoreB = new Button();
             scoreB.Location = new Point(600, 355);
-            scoreB.Text = "Показать";
+            scoreB.Text = "Kuva";
             this.Controls.Add(scoreB);
             scoreB.Click += ScoreB_Click;
             //pic pl1
@@ -167,9 +181,35 @@ namespace RPC
             picSlave.Width = 100;
             picSlave.Height = 100;
             this.Controls.Add(picSlave);
+            //about button
+            about = new Button();
+            about.Location = new Point(700, 530);
+            about.Text = "About";
+			about.Click += About_Click;
+            this.Controls.Add(about);
         }
 
-        private void ScoreB_Click(object sender, EventArgs e)
+		private void Lockpl1_Click(object sender, EventArgs e)
+		{
+            var plrRad = plrP.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+            if (plrRad == null) return;
+            plrP.Hide();
+        }
+
+		private void Lockpl2_Click(object sender, EventArgs e)
+		{
+            var plr2Rad = plr2P.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+            if (plr2Rad == null) return;
+            plr2P.Hide();
+        }
+
+		private void About_Click(object sender, EventArgs e)
+		{
+            Form2 aboutF = new Form2();
+            aboutF.Show();
+		}
+
+		private void ScoreB_Click(object sender, EventArgs e)
         {
             try
             {
@@ -207,24 +247,26 @@ namespace RPC
             switch (Play())
             {
                 case 0:
-                    final.Text = "Ничья!";
+                    final.Text = "Viik!";
                     this.BackColor = Color.White;
                     picSlave.Text = "=";
                     break;
                 case 1:
-                    final.Text = $"{p} победил!";
+                    final.Text = $"{p} võitis!";
                     this.BackColor = Color.Green;
                     picSlave.Text = ">";
                     break;
                 case 2:
-                    final.Text = $"{p2} победил!";
+                    final.Text = $"{p2} võitis!";
                     this.BackColor = Color.Red;
                     picSlave.Text = "<";
                     break;
                 default:
-                    final.Text = "Выберите чем будете играть.";
+                    final.Text = "Valige, mida mängite.";
                     break;
             }
+            plrP.Show();
+            if (!pvppvpe.Checked) plr2P.Show();
             File.AppendAllText(@"../../score.txt", final.Text + Environment.NewLine);
             final.Show();
         }
@@ -254,7 +296,7 @@ namespace RPC
             switch (plr)
             {
                 case "scissors":
-                    pic2.Image = Image.FromFile($"../../pics/scissors{rnd.Next(1, 3)}.jpg");
+                    pic.Image = Image.FromFile($"../../pics/scissors{rnd.Next(1, 3)}.jpg");
                     break;
                 case "paper":
                     pic.Image = Image.FromFile("../../pics/paper.jpg");
