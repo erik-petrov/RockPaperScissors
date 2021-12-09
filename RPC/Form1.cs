@@ -6,11 +6,23 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace RPC
 {
+    public class PlayersArr
+	{
+        public Player[] Players{ get; set; }
+	}
+    public class Player
+    {
+        public string Name { get; set; }
+        public int Victories { get; set; }
+        public int Losses { get; set; }
+    }
     public partial class Form1 : Form
     {
         Label lbl, final, scores, picSlave, choicePlr1, choicePlr2;
@@ -19,6 +31,9 @@ namespace RPC
         CheckBox pvppvpe;
         TextBox plrT, plr2T, feed;
         PictureBox pic, pic2;
+        PlayersArr players;
+        private int count;
+        private string[] playerNames;
         private string _plr1Hand = string.Empty;
         private string _plr2Hand = string.Empty;
 
@@ -47,6 +62,8 @@ namespace RPC
             this.Width = 800;
             this.Text = "Kivi, Käärid, Paber";
             this.BackColor = Color.White;
+			this.Load += Form1_Load;
+			this.FormClosing += Form1_FormClosing;
             //Greeting label
             lbl = new Label();
             lbl.Width = 300;
@@ -64,7 +81,7 @@ namespace RPC
             plrT = new TextBox();
             plrT.Width = 100;
             plrT.Height = 20;
-            plrT.Text = "Mängija 1";
+            plrT.Text = "Mangija 1";
             plrT.Location = new Point(10, 85);
             this.Controls.Add(plrT);
             //lock pl2
@@ -78,7 +95,7 @@ namespace RPC
             plr2T = new TextBox();
             plr2T.Width = 100;
             plr2T.Height = 20;
-            plr2T.Text = "Mängija 2";
+            plr2T.Text = "Mangija 2";
             plr2T.Location = new Point(10, 185);
             this.Controls.Add(plr2T);
             //lock pl2
@@ -186,6 +203,26 @@ namespace RPC
             this.Controls.Add(showpl2);
         }
 
+		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+		{
+            string json = JsonConvert.SerializeObject(players);
+            File.WriteAllText(@"../../players.json", json);
+		}
+
+		private void Form1_Load(object sender, EventArgs e)
+		{
+            string file = Regex.Replace(File.ReadAllText(@"../../players.json"), @"[\r\n\t ]+", " ").ToString();
+            playerNames[0] = "";
+			players = JsonConvert.DeserializeObject<PlayersArr>(file);
+            count = 0;
+			foreach (Player player in players.Players)
+			{
+                playerNames[count] = player.Name;
+                count += 1;
+            }
+            
+		}
+
 		private void Lockpl1_Click(object sender, EventArgs e)
 		{
             playerPick pick = new playerPick(this, plr2T.Text, true);
@@ -255,6 +292,24 @@ namespace RPC
         {
             string p2 = plr2T.Text;
             string p = plrT.Text;
+            if (!playerNames.Contains(p))
+            {
+                playerNames[playerNames.Length] = p;
+                Player player = new Player();
+                player.Name = p;
+                player.Victories = 0;
+                player.Losses = 0;
+                players.Players[players.Players.Length] = player;
+            }
+            if (!playerNames.Contains(p2))
+            {
+                playerNames[playerNames.Length] = p2;
+                Player player = new Player();
+                player.Name = p2;
+                player.Victories = 0;
+                player.Losses = 0;
+                players.Players[players.Players.Length] = player;
+            }
             switch (Play())
             {
                 case 0:
@@ -268,6 +323,11 @@ namespace RPC
                     choicePlr1.BackColor = Color.Green;
                     choicePlr2.BackColor = Color.Green;
                     picSlave.Text = ">";
+					foreach (Player player in players.Players)
+					{
+                        if (player.Name == p) player.Victories += 1;
+                        if (player.Name == p2) player.Losses += 1;
+					}
                     break;
                 case 2:
                     final.Text = $"{p2} võitis!";
@@ -275,11 +335,17 @@ namespace RPC
                     choicePlr1.BackColor = Color.Red;
                     choicePlr2.BackColor = Color.Red;
                     picSlave.Text = "<";
+                    foreach (Player player in players.Players)
+                    {
+                        if (player.Name == p2) player.Victories += 1;
+                        if (player.Name == p) player.Losses += 1;
+                    }
                     break;
                 default:
                     final.Text = "Valige, mida mängite.";
                     break;
             }
+			
             lockpl1.Show();
             if (pvppvpe.Checked) lockpl2.Show();
             _plr1Hand = String.Empty;
@@ -298,7 +364,7 @@ namespace RPC
             else
             {
                 _plr2Hand = randomPiece();
-                plr2T.Text = "Mängija 2";
+                plr2T.Text = "Mangija 2";
             }
             setImg(_plr1Hand, _plr2Hand);
             return winCheck(_plr1Hand, _plr2Hand);
