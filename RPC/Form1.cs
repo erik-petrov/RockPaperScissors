@@ -13,9 +13,9 @@ using Newtonsoft.Json;
 
 namespace RPC
 {
-    public class PlayersArr
+    public class PlayersList
 	{
-        public Player[] Players{ get; set; }
+        public List<Player> Players{ get; set; }
 	}
     public class Player
     {
@@ -23,30 +23,30 @@ namespace RPC
         public int Victories { get; set; }
         public int Losses { get; set; }
     }
+
     public partial class Form1 : Form
     {
-        Label lbl, final, scores, picSlave, choicePlr1, choicePlr2;
+        Label lbl, final, scores, picSlave, choicePlr1, choicePlr2, leaderboardL;
         Random rnd;
-        Button btn, scoreB, about, lockpl1, lockpl2, showpl1, showpl2;
+        Button btn, scoreB, about, lockpl1, lockpl2, showpl1, showpl2, leaderboardToggle;
         CheckBox pvppvpe;
         TextBox plrT, plr2T, feed;
         PictureBox pic, pic2;
-        PlayersArr players;
-        private int count;
-        private string[] playerNames;
+        PlayersList players;
+        ListView leaderboard;
+        private List<string> playerNames;
         private string _plr1Hand = string.Empty;
         private string _plr2Hand = string.Empty;
 
         public string plr1Hand
         {
-            get {return _plr1Hand; }
+            get { return _plr1Hand; }
             set
             {
                 if (_plr1Hand != value)
                     _plr1Hand = value;
             }
         }
-
         public string plr2Hand
         {
             get { return _plr2Hand; }
@@ -62,8 +62,8 @@ namespace RPC
             this.Width = 800;
             this.Text = "Kivi, Käärid, Paber";
             this.BackColor = Color.White;
-			this.Load += Form1_Load;
-			this.FormClosing += Form1_FormClosing;
+            this.Load += Form1_Load;
+            this.FormClosing += Form1_FormClosing;
             //Greeting label
             lbl = new Label();
             lbl.Width = 300;
@@ -89,7 +89,7 @@ namespace RPC
             lockpl1.Location = new Point(50, 115);
             lockpl1.Width = 40;
             lockpl1.Text = "Vali";
-			lockpl1.Click += Lockpl1_Click;
+            lockpl1.Click += Lockpl1_Click;
             this.Controls.Add(lockpl1);
             //plrP label
             plr2T = new TextBox();
@@ -103,7 +103,7 @@ namespace RPC
             lockpl2.Location = new Point(50, 215);
             lockpl2.Width = 40;
             lockpl2.Text = "Vali";
-			lockpl2.Click += Lockpl2_Click;
+            lockpl2.Click += Lockpl2_Click;
             this.Controls.Add(lockpl2);
             //play button
             btn = new Button
@@ -129,6 +129,7 @@ namespace RPC
             feed.Width = 200;
             feed.Height = 300;
             feed.Multiline = true;
+            feed.Hide();
             this.Controls.Add(feed);
             //last10 label
             scores = new Label();
@@ -138,7 +139,7 @@ namespace RPC
             this.Controls.Add(scores);
             //last 10 scores
             scoreB = new Button();
-            scoreB.Location = new Point(600, 355);
+            scoreB.Location = new Point(590, 355);
             scoreB.Text = "Kuva";
             this.Controls.Add(scoreB);
             scoreB.Click += ScoreB_Click;
@@ -167,7 +168,7 @@ namespace RPC
             about = new Button();
             about.Location = new Point(700, 530);
             about.Text = "About";
-			about.Click += About_Click;
+            about.Click += About_Click;
             this.Controls.Add(about);
             //label plr1
             choicePlr1 = new Label();
@@ -201,36 +202,88 @@ namespace RPC
             showpl2.Hide();
             showpl2.Click += delegate { choicePlr2.BackColor = Color.White; };
             this.Controls.Add(showpl2);
+            //leaderboard
+            leaderboard = new ListView();
+            leaderboard.Location = new Point(500, 25);
+            leaderboard.GridLines = true;
+            leaderboard.View = View.Details;
+            leaderboard.Width = 245;
+            leaderboard.Height = 300;
+            leaderboard.Sorting = SortOrder.Descending;
+            leaderboard.Columns.Add("Name");
+            leaderboard.Columns.Add("Victories");
+            leaderboard.Columns.Add("Losses");
+            leaderboard.Columns.Add("Win%");
+            leaderboard.Hide();
+            this.Controls.Add(leaderboard);
+            //showleader
+            leaderboardToggle = new Button();
+            leaderboardToggle.Location = new Point(590, 430);
+            leaderboardToggle.Text = "Kuva";
+            this.Controls.Add(leaderboardToggle);
+            leaderboardToggle.Click += LeaderboardToggle_Click;
+            //label leaderboard
+            leaderboardL = new Label();
+            leaderboardL.Location = new Point(550, 400);
+            leaderboardL.Text = "Kuva 10 parimad mängijad";
+            leaderboardL.Width = 200;
+            this.Controls.Add(leaderboardL);
         }
 
-		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-		{
+        private void LeaderboardToggle_Click(object sender, EventArgs e)
+        {
+            if (leaderboard.Visible) { leaderboard.Hide(); return; }
+            else leaderboard.Show();
+        }
+
+        private void PopulateLeaderboard(Player plr)
+        {
+            ListViewItem itm = new ListViewItem(plr.Name);
+            itm.SubItems.Add(plr.Victories.ToString());
+            itm.SubItems.Add(plr.Losses.ToString());
+            decimal winrate;
+            try
+            {
+                winrate = Math.Round((decimal)plr.Victories / (plr.Losses + plr.Victories) * 100, 1);
+            }
+            catch(DivideByZeroException)
+            {
+                 winrate = 0.0M;
+            }
+            itm.SubItems.Add(winrate.ToString() + "%");
+            leaderboard.Items.Add(itm);
+            ListViewItemStringComparer sorter = new ListViewItemStringComparer(3,SortOrder.Descending);
+            leaderboard.ListViewItemSorter = sorter;
+            leaderboard.Sort();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
             string json = JsonConvert.SerializeObject(players);
             File.WriteAllText(@"../../players.json", json);
-		}
+        }
 
-		private void Form1_Load(object sender, EventArgs e)
-		{
+        private void Form1_Load(object sender, EventArgs e)
+        {
             string file = Regex.Replace(File.ReadAllText(@"../../players.json"), @"[\r\n\t ]+", " ").ToString();
-            playerNames[0] = "";
-			players = JsonConvert.DeserializeObject<PlayersArr>(file);
-            count = 0;
-			foreach (Player player in players.Players)
-			{
-                playerNames[count] = player.Name;
-                count += 1;
+            players = JsonConvert.DeserializeObject<PlayersList>(file);
+            playerNames = new List<string>();
+            foreach (Player player in players.Players)
+            {
+                playerNames.Add(player.Name);
+                PopulateLeaderboard(player);
             }
-            
-		}
 
-		private void Lockpl1_Click(object sender, EventArgs e)
-		{
+        }
+
+        private void Lockpl1_Click(object sender, EventArgs e)
+        {
             playerPick pick = new playerPick(this, plr2T.Text, true);
             pick.Show();
         }
 
-		private void Lockpl2_Click(object sender, EventArgs e)
-		{
+        private void Lockpl2_Click(object sender, EventArgs e)
+        {
             playerPick pick = new playerPick(this, plr2T.Text, false);
             pick.Show();
         }
@@ -251,16 +304,18 @@ namespace RPC
                 choicePlr2.Text = _plr2Hand;
             }
         }
-		private void About_Click(object sender, EventArgs e)
-		{
+        private void About_Click(object sender, EventArgs e)
+        {
             Form2 aboutF = new Form2();
             aboutF.Show();
-		}
+        }
 
-		private void ScoreB_Click(object sender, EventArgs e)
+        private void ScoreB_Click(object sender, EventArgs e)
         {
             try
             {
+                if (feed.Visible) { feed.Hide(); return; }
+                else feed.Show();
                 feed.Text = "";
                 string[] lines = File.ReadAllLines(@"../../score.txt");
                 for (int i = lines.Length - 11; i < lines.Length; i++)
@@ -290,26 +345,10 @@ namespace RPC
 
         private void cycle(object sender, EventArgs e)
         {
-            string p2 = plr2T.Text;
-            string p = plrT.Text;
-            if (!playerNames.Contains(p))
-            {
-                playerNames[playerNames.Length] = p;
-                Player player = new Player();
-                player.Name = p;
-                player.Victories = 0;
-                player.Losses = 0;
-                players.Players[players.Players.Length] = player;
-            }
-            if (!playerNames.Contains(p2))
-            {
-                playerNames[playerNames.Length] = p2;
-                Player player = new Player();
-                player.Name = p2;
-                player.Victories = 0;
-                player.Losses = 0;
-                players.Players[players.Players.Length] = player;
-            }
+            Player p, p2;
+            if (!playerNames.Contains(plrT.Text)) { p = CreatePlayer(plrT.Text, 0, 0); }
+            else 
+            if (!playerNames.Contains(plr2T.Text)) { p2 = CreatePlayer(plr2T.Text, 0, 0); }
             switch (Play())
             {
                 case 0:
@@ -318,39 +357,40 @@ namespace RPC
                     picSlave.Text = "=";
                     break;
                 case 1:
-                    final.Text = $"{p} võitis!";
+                    final.Text = $"{plrT.Text} võitis!";
                     this.BackColor = Color.Green;
                     choicePlr1.BackColor = Color.Green;
                     choicePlr2.BackColor = Color.Green;
                     picSlave.Text = ">";
-					foreach (Player player in players.Players)
-					{
-                        if (player.Name == p) player.Victories += 1;
-                        if (player.Name == p2) player.Losses += 1;
-					}
+                    foreach (Player player in players.Players)
+                    {
+                        if (player.Name == plrT.Text) { player.Victories += 1; p = player; }
+                        if (player.Name == plr2T.Text) player.Losses += 1;
+                    }
                     break;
                 case 2:
-                    final.Text = $"{p2} võitis!";
+                    final.Text = $"{plr2T.Text} võitis!";
                     this.BackColor = Color.Red;
                     choicePlr1.BackColor = Color.Red;
                     choicePlr2.BackColor = Color.Red;
                     picSlave.Text = "<";
                     foreach (Player player in players.Players)
                     {
-                        if (player.Name == p2) player.Victories += 1;
-                        if (player.Name == p) player.Losses += 1;
+                        if (player.Name == plr2T.Text) { player.Victories += 1; p2 = player; }
+                        if (player.Name == plrT.Text) player.Losses += 1;
                     }
                     break;
                 default:
                     final.Text = "Valige, mida mängite.";
                     break;
             }
-			
+
             lockpl1.Show();
             if (pvppvpe.Checked) lockpl2.Show();
             _plr1Hand = String.Empty;
             _plr2Hand = String.Empty;
             File.AppendAllText(@"../../score.txt", final.Text + Environment.NewLine);
+            UpdateLeaderboard();
             final.Show();
         }
         //0 = draw, 1 = win, 2 = lose
@@ -452,6 +492,37 @@ namespace RPC
                     break;
             }
             return 0;
+        }
+        public Player CreatePlayer(string _name, int _victories, int _losses)
+        {
+            Player plr = new Player { Name = _name, Victories = _victories, Losses = _losses };
+            players.Players.Add(plr);
+            playerNames.Add(_name);
+            return plr;
+        }
+        public void UpdateLeaderboard()
+        {
+            leaderboard.Items.Clear();
+            foreach (Player plr in players.Players)
+            {
+                ListViewItem itm = new ListViewItem(plr.Name);
+                itm.SubItems.Add(plr.Victories.ToString());
+                itm.SubItems.Add(plr.Losses.ToString());
+                decimal winrate;
+                try
+                {
+                    winrate = Math.Round((decimal)plr.Victories / (plr.Losses + plr.Victories) * 100, 1);
+                }
+                catch (DivideByZeroException)
+                {
+                    winrate = 0.0M;
+                }
+                itm.SubItems.Add(winrate.ToString() + "%");
+                leaderboard.Items.Add(itm);
+                ListViewItemStringComparer sorter = new ListViewItemStringComparer(3, SortOrder.Descending);
+                leaderboard.ListViewItemSorter = sorter;
+                leaderboard.Sort();
+            }
         }
     }
 }

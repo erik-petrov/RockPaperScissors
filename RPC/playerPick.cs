@@ -13,7 +13,6 @@ namespace RPC
     public partial class playerPick : Form
     {
         Form1 _parent;
-        private string _plrName;
         private bool _plr;
         private GroupBox plrP;
         private RadioButton rad4, rad5, rad6;
