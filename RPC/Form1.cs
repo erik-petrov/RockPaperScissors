@@ -37,6 +37,7 @@ namespace RPC
         private List<string> playerNames;
         private string _plr1Hand = string.Empty;
         private string _plr2Hand = string.Empty;
+        private Color draw;
 
         public string plr1Hand
         {
@@ -58,10 +59,11 @@ namespace RPC
         }
         public Form1()
         {
-            this.Height = 600;
-            this.Width = 800;
+            draw = Color.FromArgb(92, 93, 99);
+            this.Height = 700;
+            this.Width = 525;
             this.Text = "Kivi, Käärid, Paber";
-            this.BackColor = Color.White;
+            this.BackColor = draw;
             this.Load += Form1_Load;
             this.FormClosing += Form1_FormClosing;
             //Greeting label
@@ -69,12 +71,12 @@ namespace RPC
             lbl.Width = 300;
             lbl.Height = 50;
             lbl.Text = "Tere tulemast rakendusse Kivi, Käärid, Paber!\nValige oma käsi ja vajutage nuppu Esita!";
-            lbl.Location = new Point(110, 20);
+            lbl.Location = new Point(140, 20);
             this.Controls.Add(lbl);
             //Final label
             final = new Label();
             final.Width = 300;
-            final.Location = new Point(250, 400);
+            final.Location = new Point(210, 400);
             final.Hide();
             this.Controls.Add(final);
             //plrP label
@@ -82,25 +84,25 @@ namespace RPC
             plrT.Width = 100;
             plrT.Height = 20;
             plrT.Text = "Mangija 1";
-            plrT.Location = new Point(10, 85);
+            plrT.Location = new Point(200, 75);
             this.Controls.Add(plrT);
             //lock pl2
             lockpl1 = new Button();
-            lockpl1.Location = new Point(50, 115);
+            lockpl1.Location = new Point(232, 105);
             lockpl1.Width = 40;
             lockpl1.Text = "Vali";
             lockpl1.Click += Lockpl1_Click;
             this.Controls.Add(lockpl1);
-            //plrP label
+            //plrP2 label
             plr2T = new TextBox();
             plr2T.Width = 100;
             plr2T.Height = 20;
             plr2T.Text = "Mangija 2";
-            plr2T.Location = new Point(10, 185);
+            plr2T.Location = new Point(200, 175);
             this.Controls.Add(plr2T);
             //lock pl2
             lockpl2 = new Button();
-            lockpl2.Location = new Point(50, 215);
+            lockpl2.Location = new Point(232, 205);
             lockpl2.Width = 40;
             lockpl2.Text = "Vali";
             lockpl2.Click += Lockpl2_Click;
@@ -117,7 +119,7 @@ namespace RPC
             this.Controls.Add(btn);
             //pvepvp check
             pvppvpe = new CheckBox();
-            pvppvpe.Location = new Point(350, 300);
+            pvppvpe.Location = new Point(225, 280);
             pvppvpe.Text = "PVP?";
             pvppvpe.Checked = true;
             pvppvpe.CheckedChanged += Pvppvpe_CheckedChanged;
@@ -125,41 +127,40 @@ namespace RPC
             //score feed
             feed = new TextBox();
             feed.ReadOnly = true;
-            feed.Location = new Point(550, 25);
+            feed.Location = new Point(0, 0);
             feed.Width = 200;
             feed.Height = 300;
             feed.Multiline = true;
-            feed.Hide();
-            this.Controls.Add(feed);
+            //this.Controls.Add(feed);
             //last10 label
             scores = new Label();
-            scores.Location = new Point(550, 330);
+            scores.Location = new Point(25, 120);
             scores.Text = "Kuva viimased 10 tulemust";
             scores.Width = 200;
             this.Controls.Add(scores);
             //last 10 scores
             scoreB = new Button();
-            scoreB.Location = new Point(590, 355);
+            scoreB.Location = new Point(25, 145);
             scoreB.Text = "Kuva";
             this.Controls.Add(scoreB);
             scoreB.Click += ScoreB_Click;
             //pic pl1
             pic = new PictureBox();
-            pic.Location = new Point(150, 450);
+            pic.Location = new Point(100, 450);
             pic.Width = 100;
             pic.Height = 100;
             pic.SizeMode = PictureBoxSizeMode.StretchImage;
             this.Controls.Add(pic);
             //pic pl2
             pic2 = new PictureBox();
-            pic2.Location = new Point(350, 450);
+            pic2.Location = new Point(300, 450);
             pic2.Width = 100;
             pic2.Height = 100;
             pic2.SizeMode = PictureBoxSizeMode.StretchImage;
             this.Controls.Add(pic2);
             //pic slave
             picSlave = new Label();
-            picSlave.Location = new Point(250, 450);
+            picSlave.Location = new Point(200, 450);
             picSlave.Font = new Font("Arial", 76);
             picSlave.Width = 100;
             picSlave.Height = 100;
@@ -172,7 +173,7 @@ namespace RPC
             this.Controls.Add(about);
             //label plr1
             choicePlr1 = new Label();
-            choicePlr1.Location = new Point(150, 115);
+            choicePlr1.Location = new Point(170, 140);
             choicePlr1.Width = 150;
             choicePlr1.TextAlign = ContentAlignment.MiddleCenter;
             choicePlr1.BackColor = Color.Black;
@@ -181,14 +182,14 @@ namespace RPC
             this.Controls.Add(choicePlr1);
             //lbl1 button to show
             showpl1 = new Button();
-            showpl1.Location = new Point(330, 115);
+            showpl1.Location = new Point(330, 140);
             showpl1.Text = "Näidata";
             showpl1.Hide();
-            showpl1.Click += delegate { choicePlr1.BackColor = Color.White; };
+            showpl1.Click += delegate { choicePlr1.BackColor = draw; };
             this.Controls.Add(showpl1);
             //label plr2
             choicePlr2 = new Label();
-            choicePlr2.Location = new Point(150, 215);
+            choicePlr2.Location = new Point(170, 240);
             choicePlr2.Width = 150;
             choicePlr2.TextAlign = ContentAlignment.MiddleCenter;
             choicePlr2.BackColor = Color.Black;
@@ -197,14 +198,14 @@ namespace RPC
             this.Controls.Add(choicePlr2);
             //lbl2 button to show
             showpl2 = new Button();
-            showpl2.Location = new Point(330, 215);
+            showpl2.Location = new Point(330, 240);
             showpl2.Text = "Näidata";
             showpl2.Hide();
-            showpl2.Click += delegate { choicePlr2.BackColor = Color.White; };
+            showpl2.Click += delegate { choicePlr2.BackColor = draw; };
             this.Controls.Add(showpl2);
             //leaderboard
             leaderboard = new ListView();
-            leaderboard.Location = new Point(500, 25);
+            leaderboard.Location = new Point(0, 0);
             leaderboard.GridLines = true;
             leaderboard.View = View.Details;
             leaderboard.Width = 245;
@@ -214,17 +215,16 @@ namespace RPC
             leaderboard.Columns.Add("Victories");
             leaderboard.Columns.Add("Losses");
             leaderboard.Columns.Add("Win%");
-            leaderboard.Hide();
-            this.Controls.Add(leaderboard);
+            //this.Controls.Add(leaderboard);
             //showleader
             leaderboardToggle = new Button();
-            leaderboardToggle.Location = new Point(590, 430);
+            leaderboardToggle.Location = new Point(25, 220);
             leaderboardToggle.Text = "Kuva";
             this.Controls.Add(leaderboardToggle);
             leaderboardToggle.Click += LeaderboardToggle_Click;
             //label leaderboard
             leaderboardL = new Label();
-            leaderboardL.Location = new Point(550, 400);
+            leaderboardL.Location = new Point(25, 190);
             leaderboardL.Text = "Kuva 10 parimad mängijad";
             leaderboardL.Width = 200;
             this.Controls.Add(leaderboardL);
@@ -232,8 +232,10 @@ namespace RPC
 
         private void LeaderboardToggle_Click(object sender, EventArgs e)
         {
-            if (leaderboard.Visible) { leaderboard.Hide(); return; }
-            else leaderboard.Show();
+            //if (leaderboard.Visible) { leaderboard.Hide(); return; }
+            //else leaderboard.Show();
+            Form3 fr = new Form3(this, leaderboard);
+            fr.Show();
         }
 
         private void PopulateLeaderboard(Player plr)
@@ -314,14 +316,16 @@ namespace RPC
         {
             try
             {
-                if (feed.Visible) { feed.Hide(); return; }
-                else feed.Show();
+                //if (feed.Visible) { feed.Hide(); return; }
+                //else feed.Show();
                 feed.Text = "";
                 string[] lines = File.ReadAllLines(@"../../score.txt");
                 for (int i = lines.Length - 11; i < lines.Length; i++)
                 {
                     feed.Text += lines[i] + Environment.NewLine;
                 }
+                Form3 fr = new Form3(this, feed);
+                fr.Show();
             }
             catch
             {
@@ -353,7 +357,9 @@ namespace RPC
             {
                 case 0:
                     final.Text = "Viik!";
-                    this.BackColor = Color.White;
+                    this.BackColor = draw;
+                    choicePlr1.BackColor = draw;
+                    choicePlr2.BackColor = draw;
                     picSlave.Text = "=";
                     break;
                 case 1:
@@ -523,6 +529,11 @@ namespace RPC
                 leaderboard.ListViewItemSorter = sorter;
                 leaderboard.Sort();
             }
+        }
+        public void clearForm3(Form3 fr)
+        {
+            fr.BackColor = Color.Green;
+            fr.Hide();
         }
     }
 }

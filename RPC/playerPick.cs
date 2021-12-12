@@ -17,12 +17,13 @@ namespace RPC
         private GroupBox plrP;
         private RadioButton rad4, rad5, rad6;
         private Button btn;
-        public playerPick(Form1 parent, string _plrName, bool plr)
+        public playerPick(Form1 parent, string plrName, bool plr)
         {
             //InitializeComponent();
+            this.BackColor = Color.FromArgb(92, 93, 99);
             this.Width = 500;
             this.Height = 200;
-            this.Text = _plrName;
+            this.Text = plrName;
             _plr = plr;
             _parent = parent;
             plrP = new GroupBox();
