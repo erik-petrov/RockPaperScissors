@@ -136,6 +136,7 @@ namespace RPC
             scores = new Label();
             scores.Location = new Point(25, 120);
             scores.Text = "Kuva viimased 10 tulemust";
+            scores.Height = 15;
             scores.Width = 200;
             this.Controls.Add(scores);
             //last 10 scores

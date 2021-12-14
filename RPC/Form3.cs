@@ -16,7 +16,7 @@ namespace RPC
         public Form3(Form1 parent, ListView leaderboard)
         {
             _parent = parent;
-            this.Width = 200;
+            this.Width = 250;
             this.Height = 300;
             this.Controls.Add(leaderboard);
             this.FormClosing += Form3_FormClosing;
