@@ -186,7 +186,7 @@ namespace RPC
             showpl1.Location = new Point(330, 140);
             showpl1.Text = "Näidata";
             showpl1.Hide();
-            showpl1.Click += delegate { choicePlr1.BackColor = draw; };
+            showpl1.Click += delegate { choicePlr1.BackColor = this.BackColor; };
             this.Controls.Add(showpl1);
             //label plr2
             choicePlr2 = new Label();
@@ -202,7 +202,7 @@ namespace RPC
             showpl2.Location = new Point(330, 240);
             showpl2.Text = "Näidata";
             showpl2.Hide();
-            showpl2.Click += delegate { choicePlr2.BackColor = draw; };
+            showpl2.Click += delegate { choicePlr2.BackColor = this.BackColor; };
             this.Controls.Add(showpl2);
             //leaderboard
             leaderboard = new ListView();
